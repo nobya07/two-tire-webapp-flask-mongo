@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    triggers {
+        pollSCM('* * * * *')   // checks GitHub every minute
+    }
+
     stages {
         stage('Clone') {
             steps {
