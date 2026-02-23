@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flask + MongoDB App</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 800px; margin: auto; }
+    h1 {
+      text-align: center;
+      color: #2d3748;
+      margin-bottom: 30px;
+      font-size: 2rem;
+    }
+    .badge {
+      display: inline-block;
+      background: #48bb78;
+      color: white;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 30px;
+    }
+    .card h2 { color: #4a5568; margin-bottom: 20px; font-size: 1.2rem; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; color: #718096; font-size: 0.9rem; margin-bottom: 6px; }
+    input, textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: border 0.2s;
+      outline: none;
+    }
+    input:focus, textarea:focus { border-color: #667eea; }
+    textarea { resize: vertical; height: 90px; }
+    button[type="submit"] {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 11px 28px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: opacity 0.2s;
+      width: 100%;
+    }
+    button[type="submit"]:hover { opacity: 0.88; }
+    .records { }
+    .record-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+    }
+    .record-info h3 { color: #2d3748; font-size: 1rem; }
+    .record-info p { color: #718096; font-size: 0.85rem; margin-top: 2px; }
+    .record-info .msg { color: #4a5568; font-size: 0.9rem; margin-top: 6px; font-style: italic; }
+    .delete-btn {
+      background: #fc8181;
+      color: white;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+    .delete-btn:hover { background: #e53e3e; }
+    .empty { text-align: center; color: #a0aec0; padding: 30px 0; }
+    .count {
+      font-size: 0.85rem;
+      color: #718096;
+      margin-bottom: 16px;
+    }
+    .flash {
+      background: #c6f6d5;
+      color: #276749;
+      padding: 12px 18px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📦 Flask + MongoDB <span class="badge">Docker</span></h1>
+
+    <!-- Input Form -->
+    <div class="card">
+      <h2>➕ Add New Record</h2>
+      <form action="/add" method="POST">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" name="name" placeholder="Enter name" required />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" placeholder="Enter email" required />
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea name="message" placeholder="Enter a message (optional)"></textarea>
+        </div>
+        <button type="submit">💾 Save to MongoDB</button>
+      </form>
+    </div>
+
+    <!-- Records List -->
+    <div class="card">
+      <h2>📋 Stored Records</h2>
+      <div class="count">Total: {{ records|length }} record(s)</div>
+      {% if records %}
+        {% for r in records %}
+        <div class="record-item">
+          <div class="record-info">
+            <h3>{{ r.name }}</h3>
+            <p>📧 {{ r.email }}</p>
+            {% if r.message %}
+            <p class="msg">"{{ r.message }}"</p>
+            {% endif %}
+          </div>
+          <form action="/delete/{{ r._id }}" method="POST">
+            <button type="submit" class="delete-btn">🗑 Delete</button>
+          </form>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty">No records yet. Add one above!</div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>
